@@ -1,0 +1,580 @@
+/* ═══════════════════════════════════════════════════════════════
+   OvuDay — Premium Admin UI
+   Shared CSS for Settings, Content Builder, and Blog Manager
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --ovd-primary: #E8476E;
+  --ovd-primary-light: #FFF0F5;
+  --ovd-primary-hover: #d63a5f;
+  --ovd-sidebar-bg: #1a1a2e;
+  --ovd-sidebar-text: #a0a0b8;
+  --ovd-sidebar-active: #E8476E;
+  --ovd-panel-bg: #ffffff;
+  --ovd-border: #e5e7eb;
+  --ovd-text: #1f2937;
+  --ovd-muted: #6b7280;
+  --ovd-surface: #f9fafb;
+  --ovd-success: #059669;
+  --ovd-danger: #dc2626;
+  --ovd-radius: 10px;
+  --ovd-shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --ovd-shadow-lg: 0 4px 12px rgba(0,0,0,.08);
+}
+
+/* ── Layout: Sidebar + Main ─────────────────────────────── */
+
+.ovd-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 0;
+  min-height: 80vh;
+  max-width: 1280px;
+  margin: 20px 20px 20px 0;
+  background: var(--ovd-panel-bg);
+  border-radius: var(--ovd-radius);
+  box-shadow: var(--ovd-shadow-lg);
+  overflow: hidden;
+}
+
+@media (max-width: 960px) {
+  .ovd-layout { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+
+.ovd-sidebar {
+  background: var(--ovd-sidebar-bg);
+  padding: 24px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ovd-sidebar-brand {
+  padding: 0 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  margin-bottom: 16px;
+}
+
+.ovd-sidebar-brand h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ovd-sidebar-brand h2 span {
+  font-size: 22px;
+}
+
+.ovd-sidebar-brand p {
+  font-size: 11px;
+  color: var(--ovd-sidebar-text);
+  margin: 4px 0 0;
+  opacity: .7;
+}
+
+.ovd-sidebar-section {
+  padding: 0 12px;
+  margin-bottom: 8px;
+}
+
+.ovd-sidebar-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: rgba(255,255,255,.3);
+  padding: 8px 12px 6px;
+}
+
+.ovd-sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  color: var(--ovd-sidebar-text);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all .15s ease;
+  margin-bottom: 2px;
+}
+
+.ovd-sidebar a:hover {
+  background: rgba(255,255,255,.06);
+  color: #fff;
+}
+
+.ovd-sidebar a.active {
+  background: var(--ovd-sidebar-active);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(232,71,110,.3);
+}
+
+.ovd-sidebar a .emoji {
+  font-size: 16px;
+  width: 22px;
+  text-align: center;
+}
+
+@media (max-width: 960px) {
+  .ovd-sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 12px;
+    gap: 4px;
+  }
+  .ovd-sidebar-brand { display: none; }
+  .ovd-sidebar-label { display: none; }
+  .ovd-sidebar-section { display: flex; flex-wrap: wrap; gap: 4px; padding: 0; }
+  .ovd-sidebar a { padding: 6px 12px; font-size: 12px; }
+}
+
+/* ── Main content ────────────────────────────────────────── */
+
+.ovd-main {
+  padding: 32px;
+  overflow-y: auto;
+}
+
+.ovd-main-header {
+  margin-bottom: 28px;
+}
+
+.ovd-main-header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ovd-text);
+  margin: 0;
+}
+
+.ovd-main-header p {
+  font-size: 13px;
+  color: var(--ovd-muted);
+  margin: 4px 0 0;
+}
+
+/* ── Cards ────────────────────────────────────────────────── */
+
+.ovd-card {
+  background: var(--ovd-panel-bg);
+  border: 1px solid var(--ovd-border);
+  border-radius: var(--ovd-radius);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--ovd-shadow);
+}
+
+.ovd-card h2,
+.ovd-card h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ovd-text);
+  margin: 0 0 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ovd-border);
+}
+
+.ovd-card h3 {
+  font-size: 13px;
+  margin-top: 20px;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* ── Form elements ────────────────────────────────────────── */
+
+.ovd-field {
+  margin-bottom: 18px;
+}
+
+.ovd-field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ovd-text);
+  margin-bottom: 6px;
+}
+
+.ovd-field input[type=text],
+.ovd-field input[type=url],
+.ovd-field input[type=email],
+.ovd-field input[type=number],
+.ovd-field textarea,
+.ovd-field select {
+  width: 100%;
+  padding: 9px 14px;
+  border: 1px solid var(--ovd-border);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--ovd-text);
+  background: #fff;
+  transition: border-color .15s, box-shadow .15s;
+  box-sizing: border-box;
+}
+
+.ovd-field input:focus,
+.ovd-field textarea:focus,
+.ovd-field select:focus {
+  outline: none;
+  border-color: var(--ovd-primary);
+  box-shadow: 0 0 0 3px rgba(232,71,110,.1);
+}
+
+.ovd-field textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.ovd-field .help {
+  font-size: 11px;
+  color: var(--ovd-muted);
+  margin-top: 4px;
+}
+
+.ovd-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.ovd-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .ovd-grid-2, .ovd-grid-3 { grid-template-columns: 1fr; }
+}
+
+/* ── Toggle / Checkbox ────────────────────────────────────── */
+
+.ovd-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.ovd-toggle input[type=checkbox] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--ovd-primary);
+  cursor: pointer;
+}
+
+/* ── Repeater items ───────────────────────────────────────── */
+
+.ovd-repeater-item {
+  background: var(--ovd-surface);
+  border: 1px solid var(--ovd-border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.ovd-repeater-item .remove-item {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #fee2e2;
+  color: var(--ovd-danger);
+  border: none;
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ovd-repeater-item .remove-item:hover {
+  background: #fecaca;
+}
+
+.ovd-add-btn {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px dashed #86efac;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 600;
+  font-size: 13px;
+  margin-top: 6px;
+  transition: background .15s;
+}
+
+.ovd-add-btn:hover {
+  background: #dcfce7;
+}
+
+/* ── Color picker ─────────────────────────────────────────── */
+
+.ovd-color-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ovd-color-row input[type=color] {
+  width: 40px;
+  height: 36px;
+  padding: 2px;
+  border: 1px solid var(--ovd-border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* ── Icon picker ──────────────────────────────────────────── */
+
+.ovd-icon-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.ovd-icon-btn {
+  padding: 5px 10px;
+  border: 1px solid var(--ovd-border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  background: #fff;
+  transition: all .15s;
+}
+
+.ovd-icon-btn.selected,
+.ovd-icon-btn:hover {
+  border-color: var(--ovd-primary);
+  background: var(--ovd-primary-light);
+  color: var(--ovd-primary);
+}
+
+/* ── Buttons ──────────────────────────────────────────────── */
+
+.ovd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all .15s;
+  text-decoration: none;
+}
+
+.ovd-btn-primary {
+  background: var(--ovd-primary);
+  color: #fff;
+}
+
+.ovd-btn-primary:hover {
+  background: var(--ovd-primary-hover);
+  box-shadow: 0 2px 8px rgba(232,71,110,.3);
+  color: #fff;
+}
+
+.ovd-btn-secondary {
+  background: var(--ovd-surface);
+  color: var(--ovd-text);
+  border: 1px solid var(--ovd-border);
+}
+
+.ovd-btn-secondary:hover {
+  background: #f3f4f6;
+}
+
+.ovd-btn-danger {
+  background: #fee2e2;
+  color: var(--ovd-danger);
+}
+
+.ovd-btn-danger:hover {
+  background: #fecaca;
+}
+
+.ovd-btn-sm {
+  padding: 6px 14px;
+  font-size: 12px;
+}
+
+/* ── Table ────────────────────────────────────────────────── */
+
+.ovd-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.ovd-table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--ovd-muted);
+  border-bottom: 2px solid var(--ovd-border);
+}
+
+.ovd-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--ovd-border);
+  color: var(--ovd-text);
+  vertical-align: middle;
+}
+
+.ovd-table tr:hover td {
+  background: var(--ovd-surface);
+}
+
+.ovd-table .actions {
+  display: flex;
+  gap: 8px;
+}
+
+.ovd-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ovd-badge-green {
+  background: #ecfdf5;
+  color: var(--ovd-success);
+}
+
+.ovd-badge-yellow {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.ovd-badge-red {
+  background: #fef2f2;
+  color: var(--ovd-danger);
+}
+
+/* ── Notices ──────────────────────────────────────────────── */
+
+.ovd-notice {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ovd-notice-success {
+  background: #ecfdf5;
+  color: var(--ovd-success);
+  border: 1px solid #a7f3d0;
+}
+
+.ovd-notice-error {
+  background: #fef2f2;
+  color: var(--ovd-danger);
+  border: 1px solid #fecaca;
+}
+
+/* ── Section title ────────────────────────────────────────── */
+
+.ovd-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ovd-text);
+  margin: 24px 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--ovd-border);
+}
+
+.ovd-section-title:first-child {
+  margin-top: 0;
+}
+
+/* ── Empty state ──────────────────────────────────────────── */
+
+.ovd-empty {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--ovd-muted);
+}
+
+.ovd-empty .emoji {
+  font-size: 36px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+/* ── Image preview ────────────────────────────────────────── */
+
+.ovd-img-preview {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--ovd-border);
+}
+
+.ovd-img-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px dashed var(--ovd-border);
+  border-radius: 8px;
+  background: var(--ovd-surface);
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--ovd-muted);
+  transition: all .15s;
+}
+
+.ovd-img-upload-btn:hover {
+  border-color: var(--ovd-primary);
+  color: var(--ovd-primary);
+}
+
+/* ── WordPress overrides ──────────────────────────────────── */
+
+.ovd-layout .wp-editor-wrap {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ovd-layout #wp-submit,
+.ovd-layout .button-primary {
+  background: var(--ovd-primary) !important;
+  border-color: var(--ovd-primary) !important;
+  border-radius: 8px !important;
+  padding: 8px 24px !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+.ovd-layout #wp-submit:hover,
+.ovd-layout .button-primary:hover {
+  background: var(--ovd-primary-hover) !important;
+}
+
+/* Hide WP admin notices inside our layout */
+.ovd-layout .notice:not(.ovd-notice),
+.ovd-layout .updated:not(.ovd-notice) {
+  display: none;
+}
