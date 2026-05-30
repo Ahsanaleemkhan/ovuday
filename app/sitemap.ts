@@ -5,7 +5,7 @@ import { GET_POST_SLUGS, GET_CATEGORIES } from "@/lib/queries";
 const BASE = "https://ovuday.com";
 const STATIC_LAST_MODIFIED = process.env.NEXT_PUBLIC_SITE_UPDATED_AT
   ? new Date(process.env.NEXT_PUBLIC_SITE_UPDATED_AT)
-  : new Date("2026-04-24T00:00:00.000Z");
+  : new Date();
 
 function safeDate(input?: string | null) {
   if (!input) return STATIC_LAST_MODIFIED;
