@@ -157,7 +157,24 @@ export function extractSchemas(schemaJson: string | null | undefined): string[] 
   let match: RegExpExecArray | null;
 
   while ((match = regex.exec(schemaJson)) !== null) {
-    results.push(match[1].trim());
+    const raw = match[1].trim();
+    try {
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      // Yoast outputs a @graph array — strip BreadcrumbList nodes from it.
+      // Next.js generates the breadcrumb schema with correct ovuday.com URLs.
+      if (Array.isArray(parsed["@graph"])) {
+        parsed["@graph"] = (parsed["@graph"] as Record<string, unknown>[]).filter(
+          (node) => node["@type"] !== "BreadcrumbList"
+        );
+        results.push(JSON.stringify(parsed));
+      } else if (parsed["@type"] === "BreadcrumbList") {
+        // Skip standalone BreadcrumbList — Next.js handles this correctly
+      } else {
+        results.push(raw);
+      }
+    } catch {
+      results.push(raw);
+    }
   }
 
   return results;
