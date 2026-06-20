@@ -5,7 +5,7 @@ import { format, subDays } from "date-fns";
 import {
   Calendar, RefreshCw, Moon, HelpCircle, AlertTriangle,
   ShieldCheck, Lightbulb, RotateCcw, Flower, Heart,
-  CalendarDays, Activity, ArrowRight, Check,
+  CalendarDays, Activity, ArrowRight, ChevronDown, Check,
 } from "@/components/icons";
 import {
   calculateOvulation, formatDate, formatShortDate,
@@ -20,19 +20,19 @@ const defaultCalculatorContent: OvuDayCalculatorContent = {
   subtitle: "Find your most fertile days",
   lmpLabel: "First day of your last period",
   lmpHelp: "Select the first day of your most recent menstrual period.",
-  cycleLabel: "Cycle length",
-  cycleHelp: "The number of days from the first day of one period to the first day of the next. Average is 28 days.",
-  lutealLabel: "Luteal phase",
-  lutealHelp: "The phase after ovulation until your next period. Average is 14 days.",
-  calculateBtn: "Calculate My Fertile Window",
+  cycleLabel: "Average cycle length",
+  cycleHelp: "Count from day 1 of one period to day 1 of the next. Most women are 21–35 days.",
+  lutealLabel: "Luteal phase length",
+  lutealHelp: "Days from ovulation to your next period. Average is 14 days. Only change if you track BBT.",
+  calculateBtn: "Find My Fertile Window",
   resetBtn: "Start over",
   resultTitle: "Your Results",
   cycleOverviewLabel: "Your {cycleLength}-day cycle overview",
-  fertileWindowTitle: "Fertile Window",
-  fertileWindowLabel: "Fertile Window Start",
+  fertileWindowTitle: "Your Fertile Window",
+  fertileWindowLabel: "Fertile Window Starts",
   ovulationDayLabel: "Ovulation Day",
   nextPeriodLabel: "Next Period",
-  peakDayLabel: "Peak Day",
+  peakDayLabel: "Next Period (est.)",
   tabCurrent: "This Cycle",
   tabNextCycles: "Next 3 Cycles",
   tipText: "The 2 days before ovulation and ovulation day itself are your most fertile.",
@@ -44,63 +44,41 @@ interface OvulationCalculatorProps {
   calculator?: OvuDayCalculatorContent;
 }
 
-/* ─── Icon wrapper ────────────────────────────────────────── */
-function FieldIcon({ children }: { children: React.ReactNode }) {
-  return (
-    <span
-      className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center"
-      style={{ color: "var(--color-primary)" }}
-      aria-hidden="true"
-    >
-      {children}
-    </span>
-  );
-}
-
 /* ─── Tooltip ─────────────────────────────────────────────── */
 function Tooltip({ text }: { text: string }) {
   return (
-    <span className="relative group inline-flex ml-1.5 cursor-help align-middle">
-      <HelpCircle
-        size={14}
-        style={{ color: "var(--color-muted)" }}
-        aria-label="More info"
-      />
+    <span className="relative group inline-flex ml-1 cursor-help align-middle">
+      <HelpCircle size={13} style={{ color: "var(--color-muted)" }} aria-label="More info" />
       <span
         className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 rounded-xl px-3 py-2.5 text-xs leading-relaxed text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-xl"
         style={{ background: "#1A1A2E" }}
         role="tooltip"
       >
         {text}
-        <span
-          className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent"
-          style={{ borderTopColor: "#1A1A2E" }}
-        />
+        <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent" style={{ borderTopColor: "#1A1A2E" }} />
       </span>
     </span>
   );
 }
 
-/* ─── Cycle Phase Bar ─────────────────────────────────────── */
-function CyclePhaseBar({ cycleLength, lutealPhase, calculator }: { cycleLength: number; lutealPhase: number; calculator: OvuDayCalculatorContent }) {
+/* ─── Cycle Phase Bar (results only) ─────────────────────── */
+function CyclePhaseBar({ cycleLength, lutealPhase }: { cycleLength: number; lutealPhase: number }) {
   const periodDays     = 5;
-  const follicularDays = cycleLength - lutealPhase - periodDays - 1;
+  const follicularDays = Math.max(cycleLength - lutealPhase - periodDays - 6, 0);
   const fertileDays    = 6;
-
   const segments = [
-    { label: "Period",      days: periodDays,     bg: "#FDA4AF", fg: "#9F1239" },
-    { label: "Follicular",  days: Math.max(follicularDays, 0), bg: "#FDE68A", fg: "#92400E" },
-    { label: "Fertile",     days: fertileDays,    bg: "#86EFAC", fg: "#14532D" },
-    { label: "Luteal",      days: lutealPhase,    bg: "#C4B5FD", fg: "#4C1D95" },
+    { label: "Period",     days: periodDays,     bg: "#FDA4AF", fg: "#9F1239" },
+    { label: "Follicular", days: follicularDays,  bg: "#FDE68A", fg: "#92400E" },
+    { label: "Fertile",    days: fertileDays,     bg: "#86EFAC", fg: "#14532D" },
+    { label: "Luteal",     days: lutealPhase,     bg: "#C4B5FD", fg: "#4C1D95" },
   ];
-
   return (
-    <div className="mb-5">
-      <p className="mb-2 text-xs font-semibold flex items-center gap-1.5" style={{ color: "var(--color-muted)" }}>
-        <Activity size={12} />
-        {calculator.cycleOverviewLabel.replace('{cycleLength}', cycleLength.toString())}
+    <div className="mb-4">
+      <p className="mb-1.5 text-xs font-semibold flex items-center gap-1" style={{ color: "var(--color-muted)" }}>
+        <Activity size={11} aria-hidden="true" />
+        Your {cycleLength}-day cycle at a glance
       </p>
-      <div className="flex h-8 overflow-hidden rounded-lg">
+      <div className="flex h-7 overflow-hidden rounded-lg">
         {segments.map(({ label, days, bg, fg }) => (
           <div
             key={label}
@@ -113,8 +91,7 @@ function CyclePhaseBar({ cycleLength, lutealPhase, calculator }: { cycleLength: 
         ))}
       </div>
       <div className="mt-1 flex justify-between text-xs" style={{ color: "var(--color-muted)" }}>
-        <span>Day 1</span>
-        <span>Day {cycleLength}</span>
+        <span>Day 1</span><span>Day {cycleLength}</span>
       </div>
     </div>
   );
@@ -125,7 +102,6 @@ function CountdownRing({ days }: { days: number }) {
   const isPast  = days < 0;
   const isToday = days === 0;
   const abs     = Math.abs(days);
-
   return (
     <div
       className="flex flex-col items-center justify-center rounded-2xl p-5 text-center"
@@ -136,14 +112,11 @@ function CountdownRing({ days }: { days: number }) {
       }}
     >
       {isToday ? (
-        <Flower size={40} style={{ color: "white" }} aria-hidden="true" />
+        <Flower size={38} style={{ color: "white" }} aria-hidden="true" />
       ) : (
         <span
           className="font-heading font-bold leading-none"
-          style={{
-            fontSize: "2.8rem",
-            color: isPast ? "var(--color-muted)" : "var(--color-primary)",
-          }}
+          style={{ fontSize: "2.6rem", color: isPast ? "var(--color-muted)" : "var(--color-primary)" }}
         >
           {abs}
         </span>
@@ -152,21 +125,21 @@ function CountdownRing({ days }: { days: number }) {
         className="mt-1 text-xs font-semibold uppercase tracking-wide"
         style={{ color: isToday ? "rgba(255,255,255,0.85)" : "var(--color-muted)" }}
       >
-        {isToday ? "Peak fertility — today!" : isPast ? `days since ovulation` : `days until ovulation`}
+        {isToday
+          ? "Peak fertility — today!"
+          : isPast
+          ? `day${abs !== 1 ? "s" : ""} since ovulation`
+          : `day${abs !== 1 ? "s" : ""} until ovulation`}
       </span>
     </div>
   );
 }
 
 /* ─── Date Pill ───────────────────────────────────────────── */
-function DatePill({
-  icon, label, date, accent,
-}: {
-  icon: React.ReactNode; label: string; date: Date; accent?: string;
-}) {
+function DatePill({ icon, label, date, accent }: { icon: React.ReactNode; label: string; date: Date; accent?: string }) {
   return (
     <div
-      className="flex items-center gap-3 rounded-xl border p-3.5"
+      className="flex items-center gap-3 rounded-xl border p-3"
       style={{ borderColor: accent ? `${accent}30` : "var(--color-border)", background: accent ? `${accent}08` : "white" }}
     >
       <span
@@ -187,13 +160,13 @@ function DatePill({
 }
 
 /* ─── Fertile Window Bar ──────────────────────────────────── */
-function FertileBar({ start, end, peak, calculator }: { start: Date; end: Date; peak: Date; calculator: OvuDayCalculatorContent }) {
+function FertileBar({ start, peak }: { start: Date; end: Date; peak: Date }) {
   const days = ["-5", "-4", "-3", "-2", "-1", "Peak"];
   return (
     <div>
       <p className="mb-2 text-xs font-semibold uppercase tracking-wide flex items-center gap-1.5" style={{ color: "var(--color-muted)" }}>
-        <Heart size={12} />
-        {calculator.fertileWindowTitle}
+        <Heart size={11} aria-hidden="true" />
+        Your 6-day fertile window
       </p>
       <div className="grid grid-cols-6 gap-1">
         {days.map((d, i) => {
@@ -202,15 +175,9 @@ function FertileBar({ start, end, peak, calculator }: { start: Date; end: Date; 
             <div
               key={d}
               className="flex flex-col items-center justify-center rounded-lg py-2.5 text-xs font-bold"
-              style={{
-                background: isPeak ? "var(--color-primary)" : "#BBF7D0",
-                color: isPeak ? "white" : "#065F46",
-              }}
+              style={{ background: isPeak ? "var(--color-primary)" : "#BBF7D0", color: isPeak ? "white" : "#065F46" }}
             >
-              {isPeak
-                ? <Flower size={14} aria-label="Ovulation day" />
-                : <span>{d}</span>
-              }
+              {isPeak ? <Flower size={13} aria-label="Ovulation day" /> : <span>{d}</span>}
             </div>
           );
         })}
@@ -218,7 +185,6 @@ function FertileBar({ start, end, peak, calculator }: { start: Date; end: Date; 
       <div className="mt-1 flex justify-between text-xs" style={{ color: "var(--color-muted)" }}>
         <span>{formatShortDate(start)}</span>
         <span className="font-semibold" style={{ color: "var(--color-primary)" }}>Peak: {formatShortDate(peak)}</span>
-        <span>{formatShortDate(end)}</span>
       </div>
     </div>
   );
@@ -229,10 +195,10 @@ function FutureCycleRow({ cycle, num }: { cycle: CycleResult; num: number }) {
   return (
     <div className="grid grid-cols-2 gap-2 rounded-xl border p-3 sm:grid-cols-4" style={{ borderColor: "var(--color-border)" }}>
       {[
-        { label: `Cycle ${num}`,    value: formatShortDate(cycle.periodStart),    color: "#DC2626" },
-        { label: "Fertile Window",  value: `${formatShortDate(cycle.fertileStart)} – ${formatShortDate(cycle.fertileEnd)}`, color: "#059669" },
-        { label: "Ovulation",       value: formatShortDate(cycle.ovulationDate),  color: "var(--color-primary)" },
-        { label: "Next Period",     value: formatShortDate(cycle.nextPeriod),     color: "var(--color-text)" },
+        { label: `Cycle ${num}`,   value: formatShortDate(cycle.periodStart),  color: "#DC2626" },
+        { label: "Fertile Window", value: `${formatShortDate(cycle.fertileStart)} – ${formatShortDate(cycle.fertileEnd)}`, color: "#059669" },
+        { label: "Ovulation",      value: formatShortDate(cycle.ovulationDate), color: "var(--color-primary)" },
+        { label: "Next Period",    value: formatShortDate(cycle.nextPeriod),    color: "var(--color-text)" },
       ].map(({ label, value, color }) => (
         <div key={label}>
           <p className="mb-0.5 text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--color-muted)" }}>{label}</p>
@@ -244,74 +210,88 @@ function FutureCycleRow({ cycle, num }: { cycle: CycleResult; num: number }) {
 }
 
 /* ─── Results ─────────────────────────────────────────────── */
-function Results({ result, onReset, calculator }: { result: OvulationResult; onReset: () => void; calculator: OvuDayCalculatorContent }) {
+function Results({ result, onReset, calculator, cycleLength, lutealPhase }: {
+  result: OvulationResult;
+  onReset: () => void;
+  calculator: OvuDayCalculatorContent;
+  cycleLength: number;
+  lutealPhase: number;
+}) {
   const { currentCycle, nextCycles, daysUntilOvulation } = result;
-  const [tab, setTab] = useState<"current" | "future">("current");
+  const [showFuture, setShowFuture] = useState(false);
 
   return (
-    <div className="mt-6 animate-slide-up space-y-4">
-      {/* Tabs */}
-      <div className="flex overflow-hidden rounded-xl border" style={{ borderColor: "var(--color-border)" }}>
-        {(["current", "future"] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className="flex-1 py-2.5 text-sm font-semibold transition-all"
-            style={{
-              background: tab === t ? "var(--color-primary)" : "white",
-              color:      tab === t ? "white" : "var(--color-muted)",
-            }}
-            aria-pressed={tab === t}
-          >
-            {t === "current" ? calculator.tabCurrent : calculator.tabNextCycles}
-          </button>
-        ))}
+    <div className="mt-4 animate-slide-up space-y-4">
+
+      {/* Countdown */}
+      <CountdownRing days={daysUntilOvulation} />
+
+      {/* Key dates */}
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <DatePill icon={<Flower size={15} />}       label={calculator.ovulationDayLabel}  date={currentCycle.ovulationDate} accent="#E8476E" />
+        <DatePill icon={<Heart size={15} />}        label={calculator.fertileWindowLabel} date={currentCycle.fertileStart}  accent="#059669" />
+        <DatePill icon={<CalendarDays size={15} />} label={calculator.nextPeriodLabel}    date={currentCycle.nextPeriod}    accent="#DC2626" />
+        <DatePill icon={<Calendar size={15} />}     label="Fertile Window Ends"           date={currentCycle.fertileEnd}    accent="#7C5CBF" />
       </div>
 
-      {tab === "current" ? (
-        <div className="space-y-4">
-          <CountdownRing days={daysUntilOvulation} />
+      {/* Fertile window visual */}
+      <div className="rounded-xl border p-4" style={{ borderColor: "#BBF7D0", background: "#F0FDF4" }}>
+        <FertileBar start={currentCycle.fertileStart} end={currentCycle.fertileEnd} peak={currentCycle.ovulationDate} />
+      </div>
 
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-            <DatePill icon={<Flower size={16} />}       label={calculator.ovulationDayLabel}  date={currentCycle.ovulationDate} accent="#E8476E" />
-            <DatePill icon={<Heart size={16} />}        label={calculator.fertileWindowLabel} date={currentCycle.fertileStart}  accent="#059669" />
-            <DatePill icon={<CalendarDays size={16} />} label={calculator.nextPeriodLabel}    date={currentCycle.periodStart}   accent="#DC2626" />
-            <DatePill icon={<Calendar size={16} />}     label={calculator.peakDayLabel}       date={currentCycle.nextPeriod}    accent="#7C5CBF" />
+      {/* Cycle phase bar */}
+      <div className="rounded-xl border p-4" style={{ borderColor: "var(--color-border)", background: "var(--color-surface)" }}>
+        <CyclePhaseBar cycleLength={cycleLength} lutealPhase={lutealPhase} />
+      </div>
+
+      {/* Best time tip */}
+      <div
+        className="flex items-start gap-3 rounded-xl border-l-4 px-4 py-3 text-sm"
+        style={{ borderColor: "var(--color-primary)", background: "var(--color-primary-bg)", color: "#7A0A3D" }}
+      >
+        <Lightbulb size={15} className="mt-0.5 shrink-0" aria-hidden="true" />
+        <span><strong>Best days to try:</strong> {calculator.tipText}</span>
+      </div>
+
+      {/* Next 3 cycles — collapsible */}
+      <div className="rounded-xl border overflow-hidden" style={{ borderColor: "var(--color-border)" }}>
+        <button
+          onClick={() => setShowFuture((v) => !v)}
+          className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold transition-colors hover:bg-pink-50"
+          style={{ color: "var(--color-text)" }}
+          aria-expanded={showFuture}
+        >
+          <span className="flex items-center gap-2">
+            <CalendarDays size={15} style={{ color: "var(--color-primary)" }} aria-hidden="true" />
+            Next 3 cycles forecast
+          </span>
+          <ChevronDown
+            size={16}
+            style={{ color: "var(--color-muted)", transform: showFuture ? "rotate(180deg)" : "none", transition: "transform .2s" }}
+            aria-hidden="true"
+          />
+        </button>
+        {showFuture && (
+          <div className="space-y-2 border-t px-4 pb-4 pt-3" style={{ borderColor: "var(--color-border)" }}>
+            {nextCycles.map((cycle, i) => <FutureCycleRow key={i} cycle={cycle} num={i + 2} />)}
+            <p className="pt-1 text-center text-xs" style={{ color: "var(--color-muted)" }}>
+              Forecasts are estimates based on your cycle length.
+            </p>
           </div>
+        )}
+      </div>
 
-          <div className="rounded-xl border p-4" style={{ borderColor: "#BBF7D0", background: "#F0FDF4" }}>
-            <FertileBar start={currentCycle.fertileStart} end={currentCycle.fertileEnd} peak={currentCycle.ovulationDate} calculator={calculator} />
-          </div>
-
-          <div
-            className="flex items-start gap-3 rounded-xl border-l-4 px-4 py-3 text-sm"
-            style={{ borderColor: "var(--color-primary)", background: "var(--color-primary-bg)", color: "#7A0A3D" }}
-          >
-            <Lightbulb size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
-            <span><strong>Best time to try:</strong> {calculator.tipText}</span>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {nextCycles.map((cycle, i) => <FutureCycleRow key={i} cycle={cycle} num={i + 2} />)}
-          <p className="text-center text-xs" style={{ color: "var(--color-muted)" }}>
-            Forecasts are estimates based on your cycle length.
-          </p>
-        </div>
-      )}
-
+      {/* Reset */}
       <button
         onClick={onReset}
         className="flex w-full items-center justify-center gap-2 rounded-xl border py-2.5 text-sm font-semibold transition-colors hover:bg-pink-50"
         style={{ borderColor: "var(--color-border)", color: "var(--color-muted)" }}
       >
-        <RotateCcw size={14} aria-hidden="true" />
+        <RotateCcw size={13} aria-hidden="true" />
         {calculator.resetBtn}
       </button>
 
-      <p className="text-center text-xs" style={{ color: "var(--color-muted)" }}>
-        {calculator.disclaimer}
-      </p>
+      <p className="text-center text-xs" style={{ color: "var(--color-muted)" }}>{calculator.disclaimer}</p>
     </div>
   );
 }
@@ -320,10 +300,11 @@ function Results({ result, onReset, calculator }: { result: OvulationResult; onR
 export default function OvulationCalculator({ calculator: calculatorProp }: OvulationCalculatorProps) {
   const calculator = calculatorProp || defaultCalculatorContent;
   const defaultLmp = format(subDays(new Date(), 14), "yyyy-MM-dd");
-  const [form, setForm]       = useState<FormState>({ lmp: defaultLmp, cycleLength: 28, lutealPhase: 14 });
-  const [result, setResult]   = useState<OvulationResult | null>(null);
-  const [error, setError]     = useState<string>("");
-  const [loading, setLoading] = useState(false);
+  const [form, setForm]         = useState<FormState>({ lmp: defaultLmp, cycleLength: 28, lutealPhase: 14 });
+  const [result, setResult]     = useState<OvulationResult | null>(null);
+  const [error, setError]       = useState<string>("");
+  const [loading, setLoading]   = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target;
@@ -334,15 +315,19 @@ export default function OvulationCalculator({ calculator: calculatorProp }: Ovul
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault(); setError("");
     const lmpDate = new Date(form.lmp);
-    if (isNaN(lmpDate.getTime()))              { setError("Please enter a valid date for your last period."); return; }
-    if (lmpDate > new Date())                  { setError("Last period date cannot be in the future."); return; }
+    if (isNaN(lmpDate.getTime()))                        { setError("Please enter a valid date for your last period."); return; }
+    if (lmpDate > new Date())                            { setError("Last period date cannot be in the future."); return; }
     if (form.cycleLength < 21 || form.cycleLength > 45) { setError("Cycle length must be between 21–45 days."); return; }
     if (form.lutealPhase < 10 || form.lutealPhase > 16) { setError("Luteal phase must be between 10–16 days."); return; }
     setLoading(true);
     setTimeout(() => { setResult(calculateOvulation(lmpDate, form.cycleLength, form.lutealPhase)); setLoading(false); }, 400);
   }
 
-  function handleReset() { setResult(null); setError(""); setForm({ lmp: defaultLmp, cycleLength: 28, lutealPhase: 14 }); }
+  function handleReset() {
+    setResult(null); setError("");
+    setForm({ lmp: defaultLmp, cycleLength: 28, lutealPhase: 14 });
+    setShowAdvanced(false);
+  }
 
   return (
     <div
@@ -367,75 +352,98 @@ export default function OvulationCalculator({ calculator: calculatorProp }: Ovul
         </div>
       </div>
 
-      {!result && <CyclePhaseBar cycleLength={form.cycleLength} lutealPhase={form.lutealPhase} calculator={calculator} />}
-
       {!result && (
         <form onSubmit={handleSubmit} noValidate className="space-y-4">
 
-          {/* LMP */}
+          {/* Step 1 — LMP */}
           <div>
             <label htmlFor="lmp" className="form-label flex items-center gap-1.5">
-              <Calendar size={14} style={{ color: "var(--color-primary)" }} aria-hidden="true" />
+              <span
+                className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-white text-[10px] font-bold"
+                style={{ background: "var(--color-primary)" }}
+                aria-hidden="true"
+              >1</span>
               {calculator.lmpLabel}
               <span style={{ color: "var(--color-primary)" }} aria-hidden="true">*</span>
             </label>
-            <div className="relative">
-              <input
-                id="lmp" name="lmp" type="date"
-                className="form-input pl-10"
-                value={form.lmp}
-                onChange={handleChange}
-                max={format(new Date(), "yyyy-MM-dd")}
-                required aria-required="true"
-              />
-              <FieldIcon><Calendar size={15} /></FieldIcon>
-            </div>
+            <input
+              id="lmp" name="lmp" type="date"
+              className="form-input"
+              value={form.lmp}
+              onChange={handleChange}
+              max={format(new Date(), "yyyy-MM-dd")}
+              required aria-required="true"
+            />
             <p className="mt-1 text-xs" style={{ color: "var(--color-muted)" }}>{calculator.lmpHelp}</p>
           </div>
 
-          {/* Cycle + Luteal */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label htmlFor="cycleLength" className="form-label flex items-center gap-1">
-                <RefreshCw size={13} style={{ color: "var(--color-primary)" }} aria-hidden="true" />
-                {calculator.cycleLabel}
-                <Tooltip text={calculator.cycleHelp} />
-              </label>
-              <div className="relative">
-                <select
-                  id="cycleLength" name="cycleLength"
-                  className="form-input pl-9"
-                  value={form.cycleLength}
-                  onChange={handleChange}
-                >
-                  {Array.from({ length: 25 }, (_, i) => i + 21).map((d) => (
-                    <option key={d} value={d}>{d} days{d === 28 ? " (avg)" : ""}</option>
-                  ))}
-                </select>
-                <FieldIcon><RefreshCw size={14} /></FieldIcon>
-              </div>
-            </div>
+          {/* Step 2 — Cycle length */}
+          <div>
+            <label htmlFor="cycleLength" className="form-label flex items-center gap-1.5">
+              <span
+                className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-white text-[10px] font-bold"
+                style={{ background: "var(--color-primary)" }}
+                aria-hidden="true"
+              >2</span>
+              {calculator.cycleLabel}
+              <Tooltip text={calculator.cycleHelp} />
+            </label>
+            <select
+              id="cycleLength" name="cycleLength"
+              className="form-input"
+              value={form.cycleLength}
+              onChange={handleChange}
+            >
+              {Array.from({ length: 25 }, (_, i) => i + 21).map((d) => (
+                <option key={d} value={d}>{d} days{d === 28 ? " — most common" : ""}</option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs" style={{ color: "var(--color-muted)" }}>
+              Count from day 1 of your period to day 1 of the next one.
+            </p>
+          </div>
 
-            <div>
-              <label htmlFor="lutealPhase" className="form-label flex items-center gap-1">
-                <Moon size={13} style={{ color: "var(--color-primary)" }} aria-hidden="true" />
-                {calculator.lutealLabel}
-                <Tooltip text={calculator.lutealHelp} />
-              </label>
-              <div className="relative">
-                <select
-                  id="lutealPhase" name="lutealPhase"
-                  className="form-input pl-9"
-                  value={form.lutealPhase}
-                  onChange={handleChange}
-                >
-                  {Array.from({ length: 7 }, (_, i) => i + 10).map((d) => (
-                    <option key={d} value={d}>{d} days{d === 14 ? " (avg)" : ""}</option>
-                  ))}
-                </select>
-                <FieldIcon><Moon size={14} /></FieldIcon>
+          {/* Advanced settings — collapsed by default */}
+          <div>
+            <button
+              type="button"
+              onClick={() => setShowAdvanced((v) => !v)}
+              className="flex items-center gap-1.5 text-xs font-semibold"
+              style={{ color: "var(--color-primary)" }}
+              aria-expanded={showAdvanced}
+            >
+              <ChevronDown
+                size={14}
+                style={{ transform: showAdvanced ? "rotate(180deg)" : "none", transition: "transform .2s" }}
+                aria-hidden="true"
+              />
+              Advanced settings
+            </button>
+
+            {showAdvanced && (
+              <div className="mt-3 rounded-xl border p-4 space-y-3" style={{ borderColor: "var(--color-border)", background: "var(--color-surface)" }}>
+                <div>
+                  <label htmlFor="lutealPhase" className="form-label flex items-center gap-1">
+                    <Moon size={13} style={{ color: "var(--color-primary)" }} aria-hidden="true" />
+                    {calculator.lutealLabel}
+                    <Tooltip text={calculator.lutealHelp} />
+                  </label>
+                  <select
+                    id="lutealPhase" name="lutealPhase"
+                    className="form-input"
+                    value={form.lutealPhase}
+                    onChange={handleChange}
+                  >
+                    {Array.from({ length: 7 }, (_, i) => i + 10).map((d) => (
+                      <option key={d} value={d}>{d} days{d === 14 ? " — average" : ""}</option>
+                    ))}
+                  </select>
+                  <p className="mt-1 text-xs" style={{ color: "var(--color-muted)" }}>
+                    Only change this if you track basal body temperature and know your exact luteal phase.
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Error */}
@@ -445,7 +453,7 @@ export default function OvulationCalculator({ calculator: calculatorProp }: Ovul
               className="flex items-start gap-2.5 rounded-xl px-4 py-3 text-sm"
               style={{ background: "#FEE2E2", color: "#991B1B" }}
             >
-              <AlertTriangle size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
+              <AlertTriangle size={15} className="mt-0.5 shrink-0" aria-hidden="true" />
               {error}
             </div>
           )}
@@ -460,25 +468,34 @@ export default function OvulationCalculator({ calculator: calculatorProp }: Ovul
             {loading ? (
               <>
                 <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" aria-hidden="true" />
-                Calculating your cycle…
+                Calculating…
               </>
             ) : (
               <>
-                <Flower size={18} aria-hidden="true" />
+                <Flower size={17} aria-hidden="true" />
                 {calculator.calculateBtn}
               </>
             )}
           </button>
 
-          {/* Privacy note */}
-          <p className="flex items-center justify-center gap-1.5 text-center text-xs" style={{ color: "var(--color-muted)" }}>
-            <ShieldCheck size={13} aria-hidden="true" />
-            {calculator.privacyNote}
-          </p>
+          {/* Trust row */}
+          <div className="flex flex-wrap items-center justify-center gap-3 text-xs" style={{ color: "var(--color-muted)" }}>
+            <span className="flex items-center gap-1"><Check size={11} style={{ color: "var(--color-primary)" }} aria-hidden="true" />Free</span>
+            <span className="flex items-center gap-1"><Check size={11} style={{ color: "var(--color-primary)" }} aria-hidden="true" />No sign-up</span>
+            <span className="flex items-center gap-1"><ShieldCheck size={11} aria-hidden="true" />{calculator.privacyNote}</span>
+          </div>
         </form>
       )}
 
-      {result && <Results result={result} onReset={handleReset} calculator={calculator} />}
+      {result && (
+        <Results
+          result={result}
+          onReset={handleReset}
+          calculator={calculator}
+          cycleLength={form.cycleLength}
+          lutealPhase={form.lutealPhase}
+        />
+      )}
     </div>
   );
 }
